@@ -97,6 +97,32 @@
     devs.forEach(function (d) { d.classList.add("is-paused"); dio.observe(d); });
   }
 
+  // trilha pontilhada de "como funciona": desenha com a rolagem até a última etapa e os pontos andam junto
+  var flow = document.querySelector(".flow"), fline = flow && flow.querySelector(".flow-line");
+  if (flow && fline) {
+    var fsteps = Array.prototype.slice.call(flow.querySelectorAll(".step")), nodeY = [], lineH = 0, fraf = 0;
+    var measureFlow = function () {
+      var fr = flow.getBoundingClientRect(), small = window.innerWidth < 900;
+      nodeY = fsteps.map(function (s) { var r = s.getBoundingClientRect(); return r.top - fr.top + (small ? 40 : r.height / 2); });
+      lineH = nodeY.length ? nodeY[nodeY.length - 1] : fr.height;
+      fline.style.height = lineH + "px";
+      updateFlow();
+    };
+    var updateFlow = function () {
+      fraf = 0;
+      var top = flow.getBoundingClientRect().top;
+      var shown = reduce ? lineH : Math.max(0, Math.min(lineH, window.innerHeight * 0.66 - top));
+      fline.style.clipPath = "inset(0 0 " + (lineH - shown).toFixed(1) + "px 0)";
+      if (!reduce) fline.style.backgroundPositionY = (-window.scrollY * 0.35).toFixed(1) + "px";
+      fsteps.forEach(function (s, i) { s.classList.toggle("on", nodeY[i] <= shown + 1); });
+    };
+    window.addEventListener("scroll", updateFlow, { passive: true });
+    window.addEventListener("resize", measureFlow);
+    window.addEventListener("load", measureFlow);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFlow);
+    measureFlow();
+  }
+
   // hero: os aparelhos acompanham o ponteiro
   var par = document.querySelector("[data-parallax]");
   if (par && finePointer && !reduce) {

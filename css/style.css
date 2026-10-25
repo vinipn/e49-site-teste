@@ -169,7 +169,7 @@ html.menu-open .ham i:last-child { transform: translateY(-5px) rotate(-45deg); }
   .hero .wrap { grid-template-columns: 1fr; }
   .hero h1, .hero-body, .hero .stage { grid-column: 1; grid-row: auto; }
   .hero .stage { margin: 28px 0 9%; }
-  .hero .slash { width: 34%; right: -4%; top: auto; bottom: 0; height: 52%; }
+  .hero .slash { width: 34%; right: -4%; top: 0; bottom: auto; height: 100%; }
   /* no celular o site abre direto no banner: ícone animado e as soluções (o título fica só para leitores de tela) */
   .hero h1 { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .hero-body { display: none; }
@@ -308,6 +308,9 @@ html.menu-open .ham i:last-child { transform: translateY(-5px) rotate(-45deg); }
 .flow-line { position: absolute; left: calc(50% - 6px); top: 0; width: 12px; height: 100%; z-index: 0; background: radial-gradient(circle, var(--e49-serra) 3.2px, transparent 3.7px) center top / 12px 18px repeat-y; }
 .flow ol { position: relative; z-index: 1; margin: 0; padding: 0; list-style: none; display: grid; gap: clamp(48px, 7vw, 104px); counter-reset: etapa; }
 .step::after { counter-increment: etapa; content: counter(etapa); position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--e49-nata); color: var(--e49-serra); border: 3px solid var(--e49-serra); font: 500 1.05rem var(--e49-apoio); }
+.js .flow-line { clip-path: inset(0 0 100% 0); }
+.step::after { transition: background-color .4s, color .4s; }
+.step.on::after { background: var(--e49-serra); color: var(--e49-nata); }
 .step { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 8vw, 140px); align-items: center; }
 .step:nth-child(even) .step-card { order: 2; }
 .step-card { background: var(--e49-serra); color: var(--e49-nata); border-radius: var(--e49-raio); padding: clamp(28px, 3.2vw, 48px); rotate: var(--rot, 0deg); }
@@ -318,16 +321,16 @@ html.menu-open .ham i:last-child { transform: translateY(-5px) rotate(-45deg); }
 .step-sticker img { width: 52%; height: auto; border-radius: 18%; }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .flow-line { clip-path: inset(0 0 100% 0); animation: trilha linear both; animation-timeline: view(); animation-range: entry 20% cover 70%; }
-    @keyframes trilha { to { clip-path: inset(0); } }
   }
 }
 @media (max-width: 899px) {
   .flow-line { left: 10px; }
-  .step::after { left: -64px; top: 40px; translate: 0 -50%; width: 40px; height: 40px; }
-  .step { grid-template-columns: 1fr; gap: 24px; margin-left: 44px; }
+  .step-card { padding-bottom: 62px; }
+  .step::after { left: -48px; top: 40px; translate: 0 -50%; width: 40px; height: 40px; }
+  .step { grid-template-columns: 1fr; gap: 0; margin-left: 44px; }
   .step:nth-child(even) .step-card { order: 0; }
-  .step-sticker { justify-self: start; width: 110px; }
+  /* o ícone entra um pedaço no quadro da etapa, em vez de ficar solto embaixo */
+  .step-sticker { position: relative; z-index: 2; justify-self: end; width: 104px; margin: -46px 22px 0 0; }
 }
 
 /* preço dos sites */
@@ -522,3 +525,13 @@ body { position: relative; }
 
 main > section, .footer { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .trail { display: none; } }
+/* celular: menos espaço entre as sessões (fica no fim para valer sobre as regras de cada bloco) */
+@media (max-width: 719px) {
+  .sec { padding-block: 44px; }
+  .sec-tight { padding-block: 34px; }
+  .sec-head { margin-bottom: 24px; }
+  .statement { padding-block: 40px 28px; }
+  .footer { padding-top: 48px; }
+  .foot-grid { margin-top: 40px; }
+  .foot-logo { margin-top: 32px; }
+}
