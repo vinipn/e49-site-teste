@@ -1,4 +1,4 @@
-/* (e)studio49 - efeitos de movimento: abertura com o logotipo, transição de rabisco entre páginas e traço discreto que acompanha a rolagem. */
+/* (e)studio49 - efeitos de movimento: abertura com o logotipo, transição de faixas entre páginas e traço discreto que acompanha a rolagem. */
 (function () {
   var root = document.documentElement;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -22,7 +22,7 @@
   function run(node, frames, opts) { opts.fill = "both"; return node.animate(frames, opts); }
   function release() { root.classList.remove("tr-cover", "intro-cover"); }
 
-  /* ---------- rabisco da transição: um traço contínuo que serpenteia pela tela ---------- */
+  // curva suave que passa por todos os pontos (usada pelo traço que acompanha a rolagem)
   function catmull(pts) {
     var d = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
     for (var i = 0; i < pts.length - 1; i++) {
@@ -33,49 +33,39 @@
     }
     return d;
   }
-  var SCRIBBLE = [[-60, 820], [90, 905], [230, 760], [180, 560], [110, 330], [200, 165], [330, 260], [360, 520], [340, 790], [450, 905], [580, 800], [590, 540], [560, 280], [640, 115], [770, 200], [800, 460], [790, 725], [880, 885], [990, 760], [1015, 520], [950, 300], [900, 95], [815, 15]];
-  function mirror(p) { return p.map(function (q) { return [1000 - q[0], 1000 - q[1]]; }); }
-  var W_THIN = 90, W_FAT = 285;
 
-  function makeScribbleFx(covered) {
+  /* ---------- transição entre páginas: duas faixas inclinadas (Brasa e Serra) cruzam a tela ---------- */
+  var T_MS = 340, T_GAP = 50, T_EASE = "cubic-bezier(.65,0,.35,1)";
+  var OFF_IN = "translateX(125vw)", ON = "translateX(0)", OFF_OUT = "translateX(-128vw)";
+
+  function makeWipe(covered) {
     var fx = document.createElement("div");
-    fx.className = "fx fx-scribble";
+    fx.className = "fx fx-wipe";
     fx.setAttribute("aria-hidden", "true");
-    var svg = svgEl("svg", { viewBox: "0 0 1000 1000", preserveAspectRatio: "none" });
-    var layers = [];
-    [[BRASA, SCRIBBLE], [SERRA, mirror(SCRIBBLE)]].forEach(function (c) {
-      var p = svgEl("path", { d: catmull(c[1]), pathLength: "1", fill: "none", stroke: c[0], "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
-      p.style.strokeDasharray = "1 1";
-      p.style.strokeDashoffset = covered ? "0" : "1.003";
-      p.style.strokeWidth = String(covered ? W_FAT : W_THIN);
-      layers.push(p);
-    });
-    fx.appendChild(svg);
+    var a = document.createElement("div"), b = document.createElement("div");
+    a.className = "wp wp-a"; b.className = "wp wp-b";
+    a.style.transform = b.style.transform = covered ? ON : OFF_IN;
+    fx.appendChild(a); fx.appendChild(b);
     document.body.appendChild(fx);
-    return { fx: fx, a: layers[0], b: layers[1] };
+    return { fx: fx, a: a, b: b };
   }
-  // desenha: o traço avança e engorda
-  function draw(p, delay, dur) {
-    return run(p, [{ strokeDashoffset: 1.003, strokeWidth: W_THIN + 40 }, { strokeDashoffset: 0, strokeWidth: W_FAT }], { duration: dur, delay: delay, easing: EASE_DRAW });
-  }
-  // desfaz: some desde o começo e vai afinando
-  function erase(p, delay, dur) {
-    return run(p, [{ strokeDashoffset: 0, strokeWidth: W_FAT }, { strokeDashoffset: -1.003, strokeWidth: 40 }], { duration: dur, delay: delay, easing: EASE_DRAW });
+  function slide(el, from, to, delay) {
+    return run(el, [{ transform: from }, { transform: to }], { duration: T_MS, delay: delay, easing: T_EASE });
   }
 
-  // entrada na página nova: o rabisco já cobre a tela e vai sendo desfeito
+  // entrada na página nova: as faixas já cobrem a tela e saem para a esquerda
   if (root.classList.contains("tr-cover") && !reduce) {
-    var s = makeScribbleFx(true);
+    var s = makeWipe(true);
     ss("del", "e49tr");
     release();
-    erase(s.b, 30, 460);
-    var last = erase(s.a, 120, 480);
+    slide(s.b, ON, OFF_OUT, 0);
+    var last = slide(s.a, ON, OFF_OUT, T_GAP);
     last.onfinish = function () { if (s.fx.parentNode) s.fx.parentNode.removeChild(s.fx); };
   } else if (root.classList.contains("tr-cover")) {
     ss("del", "e49tr"); release();
   }
 
-  // saída: desenha o rabisco e só então abre a próxima página
+  // saída: as faixas cobrem a tela e só então abre a próxima página
   var leaving = false;
   document.addEventListener("click", function (e) {
     if (reduce || leaving || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -88,11 +78,11 @@
     e.preventDefault();
     leaving = true;
     ss("set", "e49tr", "1");
-    var s = makeScribbleFx(false);
+    var s = makeWipe(false);
     s.fx.style.pointerEvents = "auto";
-    draw(s.a, 0, 420);
-    draw(s.b, 70, 440);
-    setTimeout(function () { location.href = u.href; }, 540);
+    slide(s.a, OFF_IN, ON, 0);
+    slide(s.b, OFF_IN, ON, T_GAP);
+    setTimeout(function () { location.href = u.href; }, T_MS + T_GAP + 30);
   });
   window.addEventListener("pageshow", function (ev) {
     if (!ev.persisted) return;
@@ -100,7 +90,6 @@
     document.querySelectorAll(".fx").forEach(function (n) { n.parentNode.removeChild(n); });
     release();
   });
-
   /* ---------- abertura com o logotipo (só na home, uma vez por visita) ---------- */
   function runIntro() {
     var logoImg = document.querySelector(".logo img");

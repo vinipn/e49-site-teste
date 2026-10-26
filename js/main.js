@@ -81,6 +81,42 @@
     }
   }
 
+  // números que crescem até o valor certo quando aparecem na tela (porcentagens e preço)
+  var counters = Array.prototype.slice.call(document.querySelectorAll(".facts strong, .price-big strong")).map(function (el) {
+    var node = null;
+    el.childNodes.forEach(function (n) { if (n.nodeType === 3 && /\d/.test(n.textContent)) node = n; });
+    if (!node) return null;
+    var m = node.textContent.match(/^(\D*)([\d.,]+)(.*)$/);
+    if (!m) return null;
+    el.setAttribute("aria-label", el.textContent.trim());
+    return { el: el, node: node, pre: m[1], suf: m[3], end: parseFloat(m[2].replace(/\./g, "").replace(",", ".")) };
+  }).filter(Boolean);
+  if (counters.length) {
+    var runCount = function (c) {
+      var t0 = 0, dur = 1600;
+      var step = function (t) {
+        if (!t0) t0 = t;
+        var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        c.node.textContent = c.pre + Math.round(c.end * e) + c.suf;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    if (reduce || !hasIO) { /* mantém o valor final */ }
+    else {
+      counters.forEach(function (c) { c.node.textContent = c.pre + "0" + c.suf; });
+      var cio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          cio.unobserve(en.target);
+          var c = counters.filter(function (x) { return x.el === en.target; })[0];
+          if (c) setTimeout(function () { runCount(c); }, 250);
+        });
+      }, { threshold: 0.6 });
+      counters.forEach(function (c) { cio.observe(c.el); });
+    }
+  }
+
   // o botão flutuante sai de cena quando o rodapé (com o mesmo convite) aparece
   var fab = document.querySelector(".fab");
   var foot = document.querySelector(".footer");

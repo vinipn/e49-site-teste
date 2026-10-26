@@ -30,7 +30,7 @@
 
   --header-h: 76px;
   --maxw: 1200px;
-  --gutter: clamp(20px, 4vw, 40px);
+  --gutter: clamp(16px, 4vw, 40px);
   --ease: cubic-bezier(.16, 1, .3, 1);
   --spring: cubic-bezier(.34, 1.56, .64, 1);
 }
@@ -513,7 +513,9 @@ html.intro-cover::before, html.tr-cover::before { content: ""; position: fixed; 
 html.intro-cover { overflow: hidden; }
 html.intro-cover *, html.tr-cover * { animation-play-state: paused !important; }
 .fx { position: fixed; inset: 0; z-index: 300; pointer-events: none; }
-.fx-scribble svg { position: absolute; left: -15vw; top: -35vh; width: 130vw; height: 170vh; display: block; overflow: visible; }
+.fx-wipe .wp { position: absolute; top: 0; bottom: 0; left: -25vw; width: 150vw; clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%); will-change: transform; }
+.fx-wipe .wp-a { background: var(--e49-brasa); }
+.fx-wipe .wp-b { background: var(--e49-serra); }
 .fx-bg { position: absolute; inset: 0; background: var(--e49-serra); }
 .fx-edge { position: absolute; inset: 0; background: var(--e49-brasa); clip-path: inset(0 0 0 100%); }
 .fx-logo { position: absolute; left: 50%; top: 50%; width: min(76vw, 640px); translate: -50% -50%; }
@@ -534,4 +536,22 @@ main > section, .footer { position: relative; z-index: 1; }
   .footer { padding-top: 48px; }
   .foot-grid { margin-top: 40px; }
   .foot-logo { margin-top: 32px; }
+}
+/* movimentos leves */
+.facts .bar { display: block; height: 8px; border-radius: 99px; background: rgba(28, 42, 58, .12); overflow: hidden; margin-top: 4px; }
+.facts .bar b { display: block; height: 100%; width: calc(var(--v) * 1%); border-radius: 99px; background: var(--e49-brasa-escura); transform-origin: left; }
+.group { transition: translate .5s var(--ease); }
+.group:hover { translate: 0 -5px; }
+@media (prefers-reduced-motion: no-preference) {
+  .facts .bar b { transform: scaleX(0); transition: transform 1.5s var(--ease) .25s; }
+  .facts li.in .bar b { transform: scaleX(1); }
+  .js .plain-list li, .js .benefits li { opacity: 0; translate: -10px 0; transition: opacity .7s var(--ease), translate .7s var(--ease); }
+  .js .plain-list.in li, .js .in .plain-list li, .js .benefits li.in, .js .benefits.in li, .js .in .benefits li { opacity: 1; translate: 0 0; }
+  .js .in .plain-list li:nth-child(2), .js .plain-list.in li:nth-child(2) { transition-delay: .08s; } .js .in .plain-list li:nth-child(3), .js .plain-list.in li:nth-child(3) { transition-delay: .16s; }
+  .js .in .plain-list li:nth-child(4), .js .plain-list.in li:nth-child(4) { transition-delay: .24s; } .js .in .plain-list li:nth-child(5), .js .plain-list.in li:nth-child(5) { transition-delay: .32s; } .js .in .plain-list li:nth-child(6), .js .plain-list.in li:nth-child(6) { transition-delay: .4s; }
+  .js .plain-list li .ic-check { transition: scale .5s var(--ease) .3s; scale: 0; }
+  .js .plain-list.in li .ic-check, .js .in .plain-list li .ic-check { scale: 1; }
+  .page-hero .hl { background: linear-gradient(var(--e49-brasa), var(--e49-brasa)) no-repeat 0 96% / 0 .09em; animation: hl-sweep .9s var(--ease) .7s forwards; }
+  @keyframes hl-sweep { to { background-size: 100% .09em; } }
+  .price-big strong { display: inline-block; }
 }
