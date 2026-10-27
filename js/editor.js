@@ -58,6 +58,7 @@
       '<span class="tag" id="e49-where"></span>' +
       '<button id="e49-undo" disabled title="Desfazer (Ctrl+Z)">Desfazer</button>' +
       '<button id="e49-save" class="pri" title="Salvar (Ctrl+S)">Salvar</button>' +
+      '<button id="e49-pub" title="Salva e atualiza a cópia de teste que está no ar">Publicar</button>' +
       '<button id="e49-exit">Sair</button>' +
     '</div>' +
     '<div class="insp" id="e49-insp" hidden>' +
@@ -95,9 +96,9 @@
   swatches($("e49-col"), "color");
   swatches($("e49-bg"), "bg");
 
-  function toast(t) {
+  function toast(t, ms) {
     var el = $("e49-toast"); el.textContent = t; el.classList.add("on");
-    clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove("on"); }, 1800);
+    clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove("on"); }, ms || 2200);
   }
 
   /* ---------- escolher elementos ---------- */
@@ -408,16 +409,37 @@
     if (editEl) endEdit();
     clean();
     var body = JSON.stringify(edits, null, 1);
-    fetch("/__save", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
-      .then(function (r) { if (!r.ok) throw new Error("save"); dirty = false; toast("Salvo no site"); })
+    return fetch("/__save", { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+      .then(function (r) { if (!r.ok) throw new Error("save"); dirty = false; toast("Salvo no site"); return true; })
       .catch(function () {
         var a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([body], { type: "application/json" }));
         a.download = "edits.json"; a.click();
         toast("Sem servidor de edição: baixei o edits.json");
+        return false;
       });
   }
   $("e49-save").addEventListener("click", save);
+
+  /* ---------- publicar a cópia de teste (salva e envia) ---------- */
+  var publishing = false;
+  function publish() {
+    if (publishing) return;
+    if (!confirm("Isso salva as mudanças e atualiza a cópia de teste que está no ar (https://vinipn.github.io/e49-site-teste/). Continuar?")) return;
+    publishing = true;
+    var btn = $("e49-pub"); btn.disabled = true; btn.textContent = "Publicando...";
+    save().then(function (ok) {
+      if (!ok) throw new Error("save");
+      return fetch("/__publish", { method: "POST" });
+    }).then(function (r) {
+      if (!r.ok) throw new Error("publish");
+      toast("Publicado. Em cerca de 1 minuto está no ar.");
+    }).catch(function () {
+      toast("Não consegui publicar. Peça ajuda ao Claude.");
+    }).then(function () { publishing = false; btn.disabled = false; btn.textContent = "Publicar"; });
+  }
+  $("e49-pub").addEventListener("click", publish);
+  setTimeout(function () { toast("Dê dois cliques num texto para editar. Depois, Salvar e Publicar.", 7000); }, 600);
   $("e49-exit").addEventListener("click", function () {
     if (dirty && !confirm("Tem mudanças sem salvar. Sair mesmo assim?")) return;
     dirty = false;
