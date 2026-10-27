@@ -555,3 +555,5 @@ main > section, .footer { position: relative; z-index: 1; }
   @keyframes hl-sweep { to { background-size: 100% .09em; } }
   .price-big strong { display: inline-block; }
 }
+.groups.g3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 899px) { .groups.g3 { grid-template-columns: 1fr; } }

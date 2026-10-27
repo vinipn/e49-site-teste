@@ -23,7 +23,7 @@
     "html.e49-editing .fab{display:none!important}" +
     "#e49ed{position:fixed;inset:0;z-index:2147483000;pointer-events:none;font-size:13px;color:#FCF3D9}" +
     "#e49ed .bar,#e49ed .insp{position:fixed;left:50%;transform:translateX(-50%);pointer-events:auto;background:#151E2A;border:1px solid #2c3d52;border-radius:999px;display:flex;align-items:center;gap:6px;padding:6px}" +
-    "#e49ed .bar{bottom:14px}" +
+    "#e49ed .bar{bottom:14px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 16px);border-radius:26px}" +
     "#e49ed .insp{bottom:70px;border-radius:18px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px);padding:8px 10px;gap:8px 12px}" +
     "#e49ed .insp[hidden]{display:none}" +
     "#e49ed button{font:600 13px Figtree,system-ui,sans-serif;color:#FCF3D9;background:transparent;border:1px solid transparent;border-radius:999px;padding:7px 13px;cursor:pointer;white-space:nowrap}" +
@@ -31,6 +31,7 @@
     "#e49ed button.pri{background:#F14625;color:#fff}#e49ed button.pri:hover{background:#C93A1B}" +
     "#e49ed button:disabled{opacity:.4;cursor:default}" +
     "#e49ed .tag{padding:0 10px;color:#AFCCED;font-size:12px;white-space:nowrap}" +
+    "#e49ed select{background:#1C2A3A;color:#FCF3D9;border:1px solid #2c3d52;border-radius:999px;padding:7px 12px;font:600 13px Figtree,system-ui,sans-serif;cursor:pointer;max-width:170px}" +
     "#e49ed label{display:flex;align-items:center;gap:6px;color:#AFCCED;font-size:12px}" +
     "#e49ed input[type=number]{width:62px;background:#1C2A3A;color:#FCF3D9;border:1px solid #2c3d52;border-radius:10px;padding:5px 7px;font:13px 'DM Mono',monospace}" +
     "#e49ed input[type=range]{width:90px;accent-color:#F14625}" +
@@ -55,6 +56,7 @@
   ui.id = "e49ed";
   ui.innerHTML =
     '<div class="bar">' +
+      '<select id="e49-pages" title="Trocar de página" aria-label="Trocar de página"></select>' +
       '<span class="tag" id="e49-where"></span>' +
       '<button id="e49-undo" disabled title="Desfazer (Ctrl+Z)">Desfazer</button>' +
       '<button id="e49-save" class="pri" title="Salvar (Ctrl+S)">Salvar</button>' +
@@ -81,7 +83,22 @@
   document.body.appendChild(hovBox); document.body.appendChild(selBox);
 
   var $ = function (id) { return document.getElementById(id); };
-  $("e49-where").textContent = E.key + " · " + (B === "d" ? "computador" : "celular");
+  $("e49-where").textContent = B === "d" ? "tela de computador" : "tela de celular";
+
+  /* trocar de página sem sair do modo de edição (os links do site ficam travados aqui) */
+  var PAGES = [["/", "Início"], ["/sistemas/", "Sistemas"], ["/sites/", "Sites"], ["/video-e-fotos/", "Vídeo e redes"], ["/uniformes/", "Uniformes"], ["/contato/", "Contato"], ["/quem-somos/", "Quem somos"], ["/privacidade/", "Privacidade"]];
+  var pageSel = $("e49-pages");
+  PAGES.forEach(function (p) {
+    var o = document.createElement("option"); o.value = p[0]; o.textContent = p[1];
+    if (p[0] === E.key) o.selected = true;
+    pageSel.appendChild(o);
+  });
+  pageSel.addEventListener("change", function () {
+    var go = pageSel.value;
+    if (dirty && !confirm("Tem mudanças sem salvar. Trocar de página mesmo assim?")) { pageSel.value = E.key; return; }
+    dirty = false;
+    location.href = E.base + go.replace(/^\//, "") + "?editar";
+  });
 
   function swatches(host, prop) {
     var none = document.createElement("i"); none.className = "none"; none.title = "Cor original";
@@ -136,9 +153,12 @@
     return n + (t ? ' · "' + (t.length > 22 ? t.slice(0, 22) + "…" : t) + '"' : "");
   }
 
+  function placeInsp() { $("e49-insp").style.bottom = (ui.querySelector(".bar").offsetHeight + 24) + "px"; }
+  window.addEventListener("resize", placeInsp);
   function selectEl(el) {
     sel = el;
     $("e49-insp").hidden = !el;
+    placeInsp();
     if (el) { $("e49-nm").textContent = nameOf(el); fillInsp(); }
     drawSel();
   }
