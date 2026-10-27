@@ -84,5 +84,15 @@
   "#main > section:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > p:nth-of-type(1)": {
    "html": "Para quem atende clientes todos os dias e quer sair da planilha e do caderno."
   }
+ },
+ "/video-e-fotos/": {
+  "#main > section:nth-of-type(1) > div:nth-of-type(2) > h1:nth-of-type(1)": {
+   "html": "vídeos, fotos e instagram do seu <span class=\"hl\">negócio</span>"
+  }
+ },
+ "/quem-somos/": {
+  "#main > section:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > p:nth-of-type(1)": {
+   "html": "Eu sou o Vini. Por 7 anos, estive no comando da WAZZ, uma marca de roupas que ganhou proporção nacional. Cuidei da direção criativa, do marketing e da administração do negócio, do primeiro desenho até o dia a dia da empresa."
+  }
  }
 }
