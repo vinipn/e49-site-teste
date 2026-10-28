@@ -557,3 +557,12 @@ main > section, .footer { position: relative; z-index: 1; }
 }
 .groups.g3 { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 899px) { .groups.g3 { grid-template-columns: 1fr; } }
+
+/* mapa da página de contato: só carrega depois do clique */
+.map { position: relative; overflow: hidden; min-height: clamp(320px, 46vw, 480px); border: 2px solid var(--fg); border-radius: var(--e49-raio); background-color: var(--e49-geada-clara); background-image: repeating-linear-gradient(0deg, rgba(28, 42, 58, .07) 0 2px, transparent 2px 46px), repeating-linear-gradient(90deg, rgba(28, 42, 58, .07) 0 2px, transparent 2px 46px), linear-gradient(115deg, transparent 44%, rgba(241, 70, 37, .14) 44% 47%, transparent 47%); display: grid; place-items: center; }
+.map-ph { display: grid; justify-items: center; gap: 14px; padding: 28px 20px; text-align: center; }
+.map-pin { width: 44px; height: 44px; color: var(--e49-brasa); }
+.map-ad { margin: 0; font-size: 1.1rem; } .map-ad b { display: block; font: 700 1.25rem var(--e49-titulo); letter-spacing: -.02em; }
+.map-btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.map .hint { margin: 0; font-size: .9rem; opacity: .8; }
+.map iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

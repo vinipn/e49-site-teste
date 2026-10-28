@@ -133,6 +133,22 @@
     devs.forEach(function (d) { d.classList.add("is-paused"); dio.observe(d); });
   }
 
+  // mapa da página de contato: o iframe do Google só entra quando a pessoa clica
+  var mapBox = document.getElementById("map"), mapBtn = mapBox && mapBox.querySelector("[data-map-load]");
+  if (mapBox && mapBtn) {
+    mapBtn.addEventListener("click", function () {
+      var f = document.createElement("iframe");
+      f.src = mapBox.getAttribute("data-src");
+      f.title = "Mapa: Rua Nepomuceno Costa, 435, Lages (SC)";
+      f.loading = "lazy";
+      f.referrerPolicy = "no-referrer-when-downgrade";
+      f.setAttribute("allowfullscreen", "");
+      mapBox.appendChild(f);
+      var ph = mapBox.querySelector(".map-ph");
+      if (ph) ph.style.display = "none";
+    });
+  }
+
   // trilha pontilhada de "como funciona": desenha com a rolagem até a última etapa e os pontos andam junto
   var flow = document.querySelector(".flow"), fline = flow && flow.querySelector(".flow-line");
   if (flow && fline) {
