@@ -139,7 +139,7 @@
     mapBtn.addEventListener("click", function () {
       var f = document.createElement("iframe");
       f.src = mapBox.getAttribute("data-src");
-      f.title = "Mapa: Rua Nepomuceno Costa, 435, Lages (SC)";
+      f.title = "Mapa: Rua General Nepomuceno Costa, 435, Lages (SC)";
       f.loading = "lazy";
       f.referrerPolicy = "no-referrer-when-downgrade";
       f.setAttribute("allowfullscreen", "");
